@@ -1,0 +1,29 @@
+version: 2.1
+
+docker-image: &docker-image
+  docker:
+      - image: circleci/node:13.8.0
+orbs:
+  aws-cli: circleci/aws-cli@2.0.3
+jobs:
+  #  build:  # Choose any name, such as `build`
+        # The primary container, where your job's commands will run
+  #      <<: *docker-image
+  #      steps:
+  #        - checkout # check out the code in the project directory
+  #        - run: echo "hello world" # run the `echo` command
+  create_infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - name: "Create Cloudformation Stack command"
+      - run: |
+          aws cloudformation deploy \
+          --template-file template.yml \
+          --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+          --region us-east-1
+workflows:
+    myWorkflow:
+      jobs:
+        - create_infrastructure
